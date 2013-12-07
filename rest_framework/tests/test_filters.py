@@ -394,6 +394,7 @@ class OrderingFilterTests(TestCase):
             model = OrdringFilterModel
             filter_backends = (filters.OrderingFilter,)
             ordering = ('title',)
+            ordering_fields = ('title', 'text')
 
         view = OrderingListView.as_view()
         request = factory.get('?ordering=text')
@@ -412,6 +413,7 @@ class OrderingFilterTests(TestCase):
             model = OrdringFilterModel
             filter_backends = (filters.OrderingFilter,)
             ordering = ('title',)
+            ordering_fields = ('title', 'text')
 
         view = OrderingListView.as_view()
         request = factory.get('?ordering=-text')
@@ -430,9 +432,24 @@ class OrderingFilterTests(TestCase):
             model = OrdringFilterModel
             filter_backends = (filters.OrderingFilter,)
             ordering = ('title',)
+            ordering_fields = ('title',)
 
         view = OrderingListView.as_view()
+
+        # Non-existent field, so should have on effect.
         request = factory.get('?ordering=foobar')
+        response = view(request)
+        self.assertEqual(
+            response.data,
+            [
+                {'id': 3, 'title': 'xwv', 'text': 'cde'},
+                {'id': 2, 'title': 'yxw', 'text': 'bcd'},
+                {'id': 1, 'title': 'zyx', 'text': 'abc'},
+            ]
+        )
+
+        # Not provided as an `ordering_field`, so should have no effect.
+        request = factory.get('?ordering=text')
         response = view(request)
         self.assertEqual(
             response.data,
@@ -448,6 +465,7 @@ class OrderingFilterTests(TestCase):
             model = OrdringFilterModel
             filter_backends = (filters.OrderingFilter,)
             ordering = ('title',)
+            ordering_fields = ('title', 'text')
 
         view = OrderingListView.as_view()
         request = factory.get('')
@@ -466,6 +484,7 @@ class OrderingFilterTests(TestCase):
             model = OrdringFilterModel
             filter_backends = (filters.OrderingFilter,)
             ordering = 'title'
+            ordering_fields = ('title', 'text')
 
         view = OrderingListView.as_view()
         request = factory.get('')
@@ -494,6 +513,7 @@ class OrderingFilterTests(TestCase):
             model = OrdringFilterModel
             filter_backends = (filters.OrderingFilter,)
             ordering = 'title'
+            ordering_fields = ('title', 'text', 'relateds__count')
             queryset = OrdringFilterModel.objects.all().annotate(
                 models.Count("relateds"))
 

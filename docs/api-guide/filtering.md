@@ -270,7 +270,14 @@ For more details, see the [Django documentation][search-django-admin].
 
 ## OrderingFilter
 
-The `OrderingFilter` class supports simple query parameter controlled ordering of results.  To specify the result order, set a query parameter named `'ordering'` to the required field name.  For example:
+The `OrderingFilter` class will only be applied if the view has a `ordering_fields` attribute set, which lists the fields you would like to allow ordering against.
+
+    class UserListView(generics.ListAPIView):
+        queryset = User.objects.all()
+        serializer = UserSerializer
+        ordering_fields = ('username', 'email')
+
+This will allow the client to filter the items in the list by making queries containing a query parameter named `'ordering'` set to the required field name.  For example:
 
     http://example.com/api/users?ordering=username
 

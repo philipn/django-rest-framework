@@ -122,17 +122,16 @@ class OrderingFilter(BaseFilterBackend):
             return (ordering,)
         return ordering
 
-    def remove_invalid_fields(self, queryset, ordering):
-        field_names = [field.name for field in queryset.model._meta.fields]
-        field_names += queryset.query.aggregates.keys()
-        return [term for term in ordering if term.lstrip('-') in field_names]
+    def remove_invalid_fields(self, view, ordering):
+        ordering_fields = getattr(view, 'ordering_fields', [])
+        return [term for term in ordering if term.lstrip('-') in ordering_fields]
 
     def filter_queryset(self, request, queryset, view):
         ordering = self.get_ordering(request)
 
         if ordering:
             # Skip any incorrect parameters
-            ordering = self.remove_invalid_fields(queryset, ordering)
+            ordering = self.remove_invalid_fields(view, ordering)
 
         if not ordering:
             # Use 'ordering' attribute by default
