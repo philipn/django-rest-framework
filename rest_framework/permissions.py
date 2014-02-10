@@ -204,6 +204,14 @@ class DjangoObjectPermissions(DjangoModelPermissions):
         return True
 
 
+class DjangoObjectPermissionsOrAnonReadOnly(DjangoObjectPermissions):
+    """
+    Similar to DjangoObjectPermissions, except that anonymous users are
+    allowed read-only access.
+    """
+    authenticated_users_only = False
+
+
 class TokenHasReadWriteScope(BasePermission):
     """
     The request is authenticated as a user and the token used has the right scope
